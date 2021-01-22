@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import store from '../store'
 
 Vue.use(Router)
 
@@ -25,7 +26,7 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/home',
     children: [{
-      path: 'home',
+      path: '/home',
       name: 'Home',
       component: () => import('@/views/home/index'),
       meta: { title: '首页', icon: 'dashboard' }
@@ -41,34 +42,50 @@ export const constantRoutes = [
  */
 export const asyncRoutes = [
   {
-    path: '/example',
+    path: '/permission',
     component: Layout,
-    redirect: '/example/table',
-    name: 'Example',
-    meta: { title: 'Example', icon: 'el-icon-s-help' },
+    redirect: '/permission/role',
+    alwaysShow: true,
+    name: 'Permission',
+    meta: {
+      title: '权限',
+      icon: 'el-icon-s-help',
+      roles: ['admin', 'editor']
+    },
+    children: [
+
+      {
+        path: 'role',
+        component: () => import('@/views/permission/role'),
+        name: 'RolePermission',
+        meta: {
+          title: '角色权限',
+          icon: 'table',
+          roles: ['admin']
+        }
+      }
+    ]
+  },
+  {
+    path: '/find',
+    component: Layout,
+    alwaysShow: true,
+    redirect: '/find/table',
+    name: 'Find',
+    meta: { title: '查询表格', icon: 'el-icon-s-help' },
     children: [
       {
         path: 'table',
         name: 'Table',
         component: () => import('@/views/table/index'),
-        meta: { title: 'Table', icon: 'table' }
+        meta: { title: '表格1', icon: 'table' }
       },
-      {
-        path: 'list',
-        name: 'ExportExcel',
-        component: () => import('@/views/article/index'),
-        meta: { title: 'article', icon: 'table', roles: ['admin'] }
-      }
-    ]
-  },
-  {
-    path: 'external-link',
-    component: Layout,
-    children: [
-      {
-        path: 'https://panjiachen.github.io/vue-element-admin-site/#/',
-        meta: { title: 'External Link', icon: 'link', }
-      }
+      // {
+      //   path: 'list',
+      //   name: 'ExportExcel',
+      //   component: () => import('@/views/article/index'),
+      //   meta: { title: '表格2', icon: 'table' }
+      // }
     ]
   },
 
@@ -77,12 +94,12 @@ export const asyncRoutes = [
 ]
 
 const createRouter = () => new Router({
-  // mode: 'history', // require service support
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRoutes
 })
 
 const router = createRouter()
+
 
 // Detail see: https://github.com/vuejs/vue-router/issues/1234#issuecomment-357941465
 export function resetRouter () {

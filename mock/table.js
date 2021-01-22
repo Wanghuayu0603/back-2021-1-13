@@ -7,8 +7,9 @@ const data = Mock.mock({
     'status|1': ['published', 'draft', 'deleted'],
     author: 'name',
     display_time: '@datetime',
-    pageviews: '@integer(300, 5000)'
+    pageviews: '@integer(300, 5000)',
   }]
+
 })
 
 module.exports = [
@@ -21,7 +22,7 @@ module.exports = [
         code: 20000,
         data: {
           total: items.length,
-          items: items
+          items: items,
         }
       }
     }
