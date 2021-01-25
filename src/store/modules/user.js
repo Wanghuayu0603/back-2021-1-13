@@ -1,13 +1,12 @@
-import { login, logout, getInfo } from '@/api/user'
+import { login, logout, getAsyncRoutes } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 
 const getDefaultState = () => {
   return {
     token: getToken(),
-    name: '',
-    avatar: '',
-    roles: []
+    roles: [],
+    menu: []
   }
 }
 
@@ -20,11 +19,8 @@ const mutations = {
   SET_TOKEN: (state, token) => {
     state.token = token
   },
-  SET_NAME: (state, name) => {
-    state.name = name
-  },
-  SET_AVATAR: (state, avatar) => {
-    state.avatar = avatar
+  SET_ROUTER: (state, menu) => {
+    state.menu = menu
   },
   SET_ROLES: (state, roles) => {
     state.roles = roles
@@ -37,51 +33,53 @@ const actions = {
     const { username, password } = userInfo
     return new Promise((resolve, reject) => {
 
-      login({ username: username.trim(), password: password }).then(response => {
-        const { data } = response
-        commit('SET_TOKEN', data.token)
-        setToken(data.token)
-        resolve(data)
-      }).catch(error => {
-        console.log(error)
-        reject(error)
-      })
-
-      // login(userInfo).then(response => {
-      //   if (response.code == 200) {
-      //     commit('SET_TOKEN', response.info)
-      //     setToken(response.info)
-      //   }
-      //   resolve(response)
-
+      // login({ username: username.trim(), password: password }).then(response => {
+      //   const { data } = response
+      //   commit('SET_TOKEN', data.token)
+      //   setToken(data.token)
+      //   resolve(data)
       // }).catch(error => {
       //   console.log(error)
       //   reject(error)
       // })
+
+      login(userInfo).then(response => {
+        if (response.code == 200) {
+          commit('SET_TOKEN', response.info.token)
+          setToken(response.info.token)
+        }
+        resolve(response)
+
+      }).catch(error => {
+        console.log(error)
+        reject(error)
+      })
     })
   },
 
   // get user info
-  getInfo ({ commit, state }) {
+  getAsyncRoutes ({ commit, state }) {
     return new Promise((resolve, reject) => {
-      getInfo(state.token).then(response => {
-        const { data } = response
+      getAsyncRoutes(state.token).then(response => {
+        if (response.code == 200) {
 
-        if (!data) {
+        }
+
+        if (!response) {
           reject('Verification failed, please Login again.')
         }
 
-        const { roles, name, avatar } = data
-
+        const { roles, menu } = response.info
+        console.log(roles)
+        console.log(menu)
         // roles must be a non-empty array
         if (!roles || roles.length <= 0) {
           reject('getInfo: roles must be a non-null array!')
         }
 
         commit('SET_ROLES', roles)
-        commit('SET_NAME', name)
-        commit('SET_AVATAR', avatar)
-        resolve(data)
+        commit('SET_ROUTER', menu)
+        resolve(response.info)
       }).catch(error => {
         reject(error)
       })

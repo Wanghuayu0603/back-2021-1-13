@@ -15,8 +15,8 @@
       </el-table-column>
       <el-table-column align="center" label="Operations">
         <template slot-scope="scope">
-          <el-button type="primary" size="small" @click="handleEdit(scope.row)">
-            编辑角色
+          <el-button type="primary" size="small" @click="handleEdit(scope)">
+            编辑权限
           </el-button>
           <el-button type="danger" size="small" @click="handleDelete(scope)">
             删除
@@ -30,33 +30,93 @@
         <el-form-item label="Name">
           <el-input v-model="user.name" placeholder="Role Name" />
         </el-form-item>
+        <el-form-item label="Desc">
+          <el-input
+            v-model="user.description"
+            :autosize="{ minRows: 2, maxRows: 4 }"
+            type="textarea"
+            placeholder="角色描述"
+          />
+        </el-form-item>
       </el-form>
-      <el-checkbox-group v-model="checkedRoles" @change="handleCheckChange">
-        <el-checkbox
-          :label="item"
-          :key="index"
-          v-for="(item, index) in allRoles"
-        ></el-checkbox>
-      </el-checkbox-group>
+      <el-tree
+        :data="tree"
+        show-checkbox
+        node-key="id"
+        ref="tree"
+        :default-expanded-keys="[2]"
+        :default-checked-keys="[2]"
+        :props="defaultProps"
+        @check-change="handleCheckChange"
+      >
+      </el-tree>
+
       <div slot="footer" class="dialog-footer">
         <el-button @click="isDialog = false">取 消</el-button>
-        <el-button type="primary" @click="addRolesSure">确 定</el-button>
+        <el-button type="primary" @click="isDialog = false">确 定</el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { getUsers, addRole, deleteRole } from "@/api/role";
+// import path from "path";
+// import { deepClone } from "@/utils";
+import { getUsers } from "@/api/role";
+
+// const defaultRole = {};
 
 export default {
   data() {
     return {
       userList: [], // 用户列表数据
       allRoles: [], // 所有角色
-      checkedRoles: [], // 选中的角色
       isDialog: false,
-      user: { name: "" },
+      user: { name: "", description: "" },
+      tree: [
+        {
+          id: 1,
+          label: "一级 1",
+          children: [
+            {
+              id: 4,
+              label: "二级 1-1",
+            },
+          ],
+        },
+        {
+          id: 2,
+          label: "一级 2",
+          children: [
+            {
+              id: 5,
+              label: "二级 2-1",
+            },
+            {
+              id: 6,
+              label: "二级 2-2",
+            },
+          ],
+        },
+        {
+          id: 3,
+          label: "一级 3",
+          children: [
+            {
+              id: 7,
+              label: "二级 3-1",
+            },
+            {
+              id: 8,
+              label: "二级 3-2",
+            },
+          ],
+        },
+      ],
+      defaultProps: {
+        children: "children",
+        label: "label",
+      },
     };
   },
   computed: {
@@ -75,61 +135,9 @@ export default {
     this.getUsers();
   },
   methods: {
-    //确认编辑用户角色
-    async addRolesSure() {
-      var chanelRoles = [];
-      let newUserList = this.userList.slice(0);
-
-      var res = this.userList.filter((item) => {
-        if (item.username == this.curUser) {
-          // 未选中角色
-          item.roles.forEach((element) => {
-            if (!this.checkedRoles.includes(element)) {
-              chanelRoles.push(element);
-            }
-          });
-          // 选中角色的对象
-          return (item.roles = this.checkedRoles);
-        }
-      });
-      console.log(res[0].roles);
-
-      // 添加操作
-      if (res[0].roles.length) {
-        let data = await addRole(
-          this.$qs.stringify({ user: res[0].username, group: res[0].roles })
-        );
-      }
-
-      // 移除操作
-      newUserList.forEach((item) => {
-        if (item.username == this.curUser) {
-          item.roles = chanelRoles.slice(0);
-        }
-      });
-      console.log(newUserList[0].roles);
-
-      if (newUserList[0].roles.length) {
-        let data1 = await deleteRole(
-          this.$qs.stringify({
-            user: newUserList[0].username,
-            group: newUserList[0].roles,
-          })
-        );
-      }
-      this.isDialog = false;
-      this.getUsers();
-    },
     // 设置角色树选中情况
-    handleEdit(curItem) {
+    handleEdit() {
       this.isDialog = true;
-      this.userList.forEach((item) => {
-        if (item.username == curItem.username) {
-          this.checkedRoles = curItem.roles; // 选中的角色
-        }
-      });
-      // 当前编辑的对象
-      this.curUser = curItem.username;
     },
     handleAddRoles() {
       this.isDialog = true;
@@ -139,8 +147,11 @@ export default {
       this.userList = res.info.user_roles; //用户列表数据
       this.allRoles = res.info.roles;
     },
+
     handleDelete() {},
-    handleCheckChange(value) {},
+    handleCheckChange(data, checked, indeterminate) {
+      console.log(data, checked, indeterminate);
+    },
   },
 };
 </script>

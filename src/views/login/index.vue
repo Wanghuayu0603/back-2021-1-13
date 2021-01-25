@@ -81,8 +81,8 @@ export default {
     };
     return {
       loginForm: {
-        username: "admin",
-        password: "111111",
+        username: "zhenghua",
+        password: "123456",
       },
       loginRules: {
         username: [
@@ -121,41 +121,41 @@ export default {
         if (valid) {
           this.loading = true;
 
+          // this.$store
+          //   .dispatch("user/login", this.loginForm)
+          //   .then((res) => {
+          //     console.log(res);
+          //     // Message({
+          //     //   message: res.message || "Error",
+          //     //   type: "error",
+          //     //   duration: 5 * 1000,
+          //     // });
+          //     this.$router.push({ path: this.redirect || "/" });
+          //     this.loading = false;
+          //   })
+          //   .catch(() => {
+          //     this.loading = false;
+          //   });
+
           this.$store
-            .dispatch("user/login", this.loginForm)
+            .dispatch("user/login", this.$qs.stringify(this.loginForm))
             .then((res) => {
               console.log(res);
-              // Message({
-              //   message: res.message || "Error",
-              //   type: "error",
-              //   duration: 5 * 1000,
-              // });
-              this.$router.push({ path: this.redirect || "/" });
+              if (res.code != 200) {
+                Message({
+                  message: res.msg || "Error",
+                  type: "error",
+                  duration: 5 * 1000,
+                });
+                return;
+              }
+
+              this.$router.push({ path: "/" });
               this.loading = false;
             })
             .catch(() => {
               this.loading = false;
             });
-
-          //   this.$store
-          // .dispatch("user/login", this.$qs.stringify(this.loginForm))
-          // .then((res) => {
-          //   console.log(res);
-          //   if (res.code != 200) {
-          //     Message({
-          //       message: res.msg || "Error",
-          //       type: "error",
-          //       duration: 5 * 1000,
-          //     });
-          //     return;
-          //   }
-
-          //   this.$router.push({ path: "/" });
-          //   this.loading = false;
-          // })
-          // .catch(() => {
-          //   this.loading = false;
-          // });
         } else {
           console.log("error submit!!");
           return false;

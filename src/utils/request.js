@@ -28,14 +28,17 @@ service.interceptors.response.use(
   response => {
     const res = response.data
 
-    if (res.code !== 20000) {
+    if (res.code !== 200) {
       Message({
         message: res.message || 'Error',
         type: 'error',
         duration: 5 * 1000
       })
+      if (res.code == 419) {
+        return res
+      }
 
-      if (res.code === 50008 || res.code === 50012 || res.code === 50014) {
+      if (res.code === 403 || res.code === 50008 || res.code === 50012 || res.code === 50014) {
 
         MessageBox.confirm('您已经退出登录，您可以取消留在此页面，或重新登录', '确认注销', {
           confirmButtonText: '重新登陆',
