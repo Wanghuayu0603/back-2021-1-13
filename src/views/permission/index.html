@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+
+    var one = [
+        {
+            id: 1,
+            label: 'admin',
+            children: [
+                {
+                    id: 3,
+                    label: 'read'
+                },
+                {
+                    id: 4,
+                    label: 'edit'
+                }
+            ]
+        },
+        {
+            id: 2,
+            label: 'admin',
+            children: [
+                {
+                    id: 5,
+                    label: 'fight'
+                },
+                {
+                    id: 6,
+                    label: 'play'
+                }
+            ]
+        }
+    ]
+
+
+    var two = [
+        {
+            label: 'admin',
+            children: [
+                {
+                    label: 'read'
+                },
+                {
+                    label: 'edit'
+                }
+            ]
+        },
+        {
+            label: 'admin',
+            children: [
+                {
+                    label: 'fight'
+                },
+                
+            ]
+        }
+    ]
+
+    var res = []
+
+    function filterDefaultVal(objOne, objTwo) {
+
+
+        for (var i = 0; i < objOne.length; i++) {
+
+            for (var j = 0; j < objTwo.length; j++) {
+
+                if (objOne[i].label == objTwo[j].label) {
+
+                    if(objTwo[j].children && objTwo[j].children.length) {
+                        filterDefaultVal(objOne[i].children, objTwo[j].children)
+                    } else {
+                        res.push(objOne[i].id)
+                    }
+
+                } 
+            }
+
+        }
+        return res
+    }
+
+
+    console.log(filterDefaultVal(one, two))
+</script>
+
+</html>

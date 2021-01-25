@@ -113,6 +113,11 @@ export default {
           ],
         },
       ],
+      obj:[
+        {name: '张三', a: ['admin','jkng','mbhb'], b: ['hbkj','bhjbj','jig','sdf']},
+        {name: '王五', a: ['admin','jkng','mbhb'], b: ['hbkj','bhjbj','jig','sdf']},
+      ],
+      role:[],
       defaultProps: {
         children: "children",
         label: "label",
