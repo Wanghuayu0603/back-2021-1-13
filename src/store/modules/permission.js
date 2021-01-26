@@ -23,17 +23,17 @@ function filterAsyncRouter (asyncRouterMap) { //遍历后台传来的路由字�
       if (route.component === 'Layout') {//Layout组件特殊处理
         route.component = Layout
       } else {
-        if (route.path == 'role') {
-          route.component = () => import('@/views/permission/role')
-        } else if (route.path == 'table') {
-          route.component = () => import('@/views/table/index')
-        } else if (route.path == 'user') {
-          route.component = () => import('@/views/permission/user')
-        } else if (route.path == 'list') {
-          route.component = () => import('@/views/permission/list')
-        }
-        // route.component = () => import(`@/${route.component}`)
-        // route.component = _import(route.component)
+        // if (route.path == 'role') {
+        //   route.component = () => import('@/views/permission/role')
+        // } else if (route.path == 'table') {
+        //   route.component = () => import('@/views/table/index')
+        // } else if (route.path == 'user') {
+        //   route.component = () => import('@/views/permission/user')
+        // } else if (route.path == 'list') {
+        //   route.component = () => import('@/views/permission/list')
+        // }
+        route.component = () => resolve => require([`@/${route.component}`], resolve)
+
       }
     }
     if (route.children && route.children.length) {
@@ -44,30 +44,6 @@ function filterAsyncRouter (asyncRouterMap) { //遍历后台传来的路由字�
 
   return accessedRouters
 }
-// export function getAsyncRoutes (routes) {
-//   const res = []
-//   const keys = ['path', 'name', 'children', 'redirect', 'alwaysShow', 'meta', 'hidden']
-//   routes.forEach(item => {
-//     const newItem = {}
-//     if (item.component) {
-//       if (item.component === 'Layout') {
-//         newItem.component = Layout
-//       } else {
-//         newItem.component = () => import(`@/${item.component}`)
-//       }
-//     }
-//     for (const key in item) {
-//       if (keys.includes(key)) {
-//         newItem[key] = item[key]
-//       }
-//     }
-//     if (newItem.children && newItem.children.length) {
-//       newItem.children = getAsyncRoutes(item.children)
-//     }
-//     res.push(newItem)
-//   })
-//   return res
-// }
 
 /**
  * Filter asynchronous routing tables by recursion
@@ -106,18 +82,9 @@ const actions = {
   generateRoutes ({ commit }, route) {
     return new Promise(resolve => {
       let accessedRoutes
-      console.log(route)
       const asyncRoutes = filterAsyncRouter(route.menu) // 对路由格式进行处理
-      console.log('----------')
-      console.log(asyncRoutes)
 
-      // if (roles.includes('admin')) {
-      //   accessedRoutes = asyncRoutes || []
-      // }
-      // else {
       accessedRoutes = filterAsyncRoutes(asyncRoutes, route.roles)
-      console.log(accessedRoutes)
-      // }
       commit('SET_ROUTES', accessedRoutes)
       resolve(accessedRoutes)
     })
