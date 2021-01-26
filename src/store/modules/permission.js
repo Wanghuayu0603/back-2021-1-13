@@ -27,6 +27,10 @@ function filterAsyncRouter (asyncRouterMap) { //遍历后台传来的路由字�
           route.component = () => import('@/views/permission/role')
         } else if (route.path == 'table') {
           route.component = () => import('@/views/table/index')
+        } else if (route.path == 'user') {
+          route.component = () => import('@/views/permission/user')
+        } else if (route.path == 'list') {
+          route.component = () => import('@/views/permission/list')
         }
         // route.component = () => import(`@/${route.component}`)
         // route.component = _import(route.component)

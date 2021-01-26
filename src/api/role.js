@@ -8,6 +8,7 @@ import request from '@/utils/request'
 //   })
 // }
 
+// 获取用户列表
 export function getUsers () {
   return request({
     url: 'rbac/read.php',
@@ -23,20 +24,29 @@ export function addRole (data) {
     data,
   })
 }
-
-export function updateRole (id, data) {
-  return request({
-    url: `/vue-element-admin/role/${id}`,
-    method: 'put',
-    data
-  })
-}
-
 // 移除用户角色
 export function deleteRole (data) {
   return request({
     url: 'rbac/unbind_user.php',
     method: 'post',
     data,
+  })
+}
+
+// 增加权限
+export function addPermission (data) {
+  return request({
+    url: `rbac/add_policy.php`,
+    method: 'post',
+    data
+  })
+}
+
+// 移除权限
+export function delPermission (data) {
+  return request({
+    url: `rbac/remove_policy.php`,
+    method: 'post',
+    data
   })
 }

@@ -60,13 +60,10 @@
 </template>
 
 <script>
-// import path from "path";
-// import { deepClone } from "@/utils";
 import { getUsers } from "@/api/role";
 
-// const defaultRole = {};
-
 export default {
+  name: "ListPermission",
   data() {
     return {
       userList: [], // 用户列表数据
@@ -113,11 +110,19 @@ export default {
           ],
         },
       ],
-      obj:[
-        {name: '张三', a: ['admin','jkng','mbhb'], b: ['hbkj','bhjbj','jig','sdf']},
-        {name: '王五', a: ['admin','jkng','mbhb'], b: ['hbkj','bhjbj','jig','sdf']},
+      obj: [
+        {
+          name: "张三",
+          a: ["admin", "jkng", "mbhb"],
+          b: ["hbkj", "bhjbj", "jig", "sdf"],
+        },
+        {
+          name: "王五",
+          a: ["admin", "jkng", "mbhb"],
+          b: ["hbkj", "bhjbj", "jig", "sdf"],
+        },
       ],
-      role:[],
+      role: [],
       defaultProps: {
         children: "children",
         label: "label",

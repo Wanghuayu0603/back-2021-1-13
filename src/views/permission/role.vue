@@ -31,11 +31,12 @@
           <el-input v-model="user.name" placeholder="Role Name" />
         </el-form-item>
       </el-form>
-      <el-checkbox-group v-model="checkedRoles" @change="handleCheckChange">
+      <el-checkbox-group v-model="checkedRoles">
         <el-checkbox
           :label="item"
           :key="index"
           v-for="(item, index) in allRoles"
+          @change="(val) => checkedChange(val, item)"
         ></el-checkbox>
       </el-checkbox-group>
       <div slot="footer" class="dialog-footer">
@@ -50,6 +51,7 @@
 import { getUsers, addRole, deleteRole } from "@/api/role";
 
 export default {
+  name: "RolePermission",
   data() {
     return {
       userList: [], // 用户列表数据
@@ -75,74 +77,28 @@ export default {
     this.getUsers();
   },
   methods: {
-    // 移除操作
-    async chanelRole() {
-      // 移除操作
-      delRoles = () => {
-        var chanelRoles = [];
-
-        this.allRoles.forEach((element) => {
-          if (!this.checkedRoles.includes(element)) {
-            chanelRoles.push(element);
-          }
-        });
-
-        var delRes = this.userList.filter((item) => {
-          if (item.username == this.curUser) {
-            item.roles = chanelRoles.slice(0);
-          }
-        });
-        return delRes;
-      };
-
-      if (delRoles[0].roles.length) {
-        let data1 = await deleteRole(
-          this.$qs.stringify({
-            user: newUserList[0].username,
-            group: newUserList[0].roles,
-          })
+    async checkedChange(flag, curRole) {
+      if (flag) {
+        // 选中状态
+        await addRole(
+          this.$qs.stringify({ user: this.curUser, group: [curRole] })
+        );
+      } else {
+        await deleteRole(
+          this.$qs.stringify({ user: this.curUser, group: [curRole] })
         );
       }
+      this.getUsers();
     },
-    // 添加操作
-    async addRoules(){
 
-    var addRes = this.userList.filter((item) => {
-          if (item.username == this.curUser) {
-            // 选中角色的对象
-            return (item.roles = this.checkedRoles);
-          }
-        });
-
-        // 添加操作
-        if (addRes[0].roles.length) {
-          let data = await addRole(
-            this.$qs.stringify({
-              user: addRes[0].username,
-              group: addRes[0].roles,
-            })
-          );
-        }
-
-    },
     //确认编辑用户角色
     async addRolesSure() {
-      
-      this.addRoules()
-      this.chanelRole()
-
       // 刷新
-      this.getUsers();
-      this.isDialog = false;
     },
     // 设置角色树选中情况
     handleEdit(curItem) {
       this.isDialog = true;
-      // this.userList.forEach((item) => {
-      // if (item.username == curItem.username) {
       this.checkedRoles = curItem.roles; // 选中的角色
-      // }
-      // });
       // 保存当前编辑的对象
       this.curUser = curItem.username;
     },
@@ -155,7 +111,6 @@ export default {
       this.allRoles = res.info.roles;
     },
     handleDelete() {},
-    handleCheckChange(value) {},
   },
 };
 </script>

@@ -10,62 +10,74 @@
 <body>
 
 </body>
-<script>
 
-    var one = [
-        {
-            id: 1,
-            label: 'admin',
-            children: [
-                {
-                    id: 3,
-                    label: 'read'
-                },
-                {
-                    id: 4,
-                    label: 'edit'
-                }
-            ]
-        },
-        {
-            id: 2,
-            label: 'admin',
-            children: [
-                {
-                    id: 5,
-                    label: 'fight'
-                },
-                {
-                    id: 6,
-                    label: 'play'
-                }
-            ]
-        }
+<!-- 所有级别角色 -->
+<!-- <script>
+    var one = ["data2", "rbac", "hd"]
+    var two = ["read", "policy", "group", "hd_td"]
+    var tree = []
+
+    // 一级
+    one.forEach((item, index) => {
+        tree.push({
+            id: index,
+            label: item,
+            children: []
+        })
+    })
+
+    // 二级
+    var cur = one.length
+    tree.forEach((item, index) => {
+
+        two.forEach((ele, ind) => {
+            cur++
+            item.children.push({
+                id: cur,
+                label: ele
+            })
+        })
+    })
+
+    console.log(tree)
+</script> -->
+
+<!-- 角色列表 -->
+<!-- <script>
+    var role_policys = [
+        { role: "role_sd", obj: ["data2"], data2: ["read"] },
+        { role: "role_ab", obj: ["data2"], data2: ["read"] },
+        { role: "admin", obj: ["rbac", "rbac", "hd"], rbac: ["policy", "group"], hd: ["hd_td"] }
     ]
 
-
-    var two = [
-        {
-            label: 'admin',
-            children: [
-                {
-                    label: 'read'
-                },
-                {
-                    label: 'edit'
+    var tree1 = []
+    role_policys.forEach((item) => {
+        if (item.role == 'role_sd') {
+            var obj = [...new Set(item.obj)]
+            obj.forEach((ele, index) => {
+                tree1.push({
+                    label: ele,
+                    children: []
+                })
+                if (item[ele].length) {
+                    for (var i = 0; i < item[ele].length; i++) {
+                        tree1[index].children.push({
+                            label: item[ele][i],
+                            children: []
+                        })
+                    }
                 }
-            ]
-        },
-        {
-            label: 'admin',
-            children: [
-                {
-                    label: 'fight'
-                },
-                
-            ]
+            })
         }
-    ]
+    })
+
+    console.log(tree1)
+
+</script> -->
+
+
+<!-- tree默认选中状态 -->
+<!-- <script>
 
     var res = []
 
@@ -78,13 +90,13 @@
 
                 if (objOne[i].label == objTwo[j].label) {
 
-                    if(objTwo[j].children && objTwo[j].children.length) {
+                    if (objTwo[j].children && objTwo[j].children.length) {
                         filterDefaultVal(objOne[i].children, objTwo[j].children)
                     } else {
                         res.push(objOne[i].id)
                     }
 
-                } 
+                }
             }
 
         }
@@ -92,7 +104,20 @@
     }
 
 
-    console.log(filterDefaultVal(one, two))
+    console.log(filterDefaultVal(tree, tree1))
+</script> -->
+
+<script>
+    // var CheckedRolesY = [{first:'data2', second: 'haha'},{first:'data1', second: 'hehe'}]
+
+    // var res = {}
+    // var a = []
+    // CheckedRolesY.forEach(item =>{
+
+    //     res[item] = []
+    //     a.push(item.first)
+    // })
+
 </script>
 
 </html>

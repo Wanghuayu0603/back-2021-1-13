@@ -5,7 +5,6 @@ import { getToken } from '@/utils/auth'
 
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API,
-  // baseURL: '/dev-api',
   timeout: 5000 // request timeout
 })
 
@@ -30,17 +29,14 @@ service.interceptors.response.use(
 
     if (res.code !== 200) {
       Message({
-        message: res.message || 'Error',
+        message: res.msg || 'Error',
         type: 'error',
         duration: 5 * 1000
       })
-      if (res.code == 419) {
-        return res
-      }
 
-      if (res.code === 403 || res.code === 50008 || res.code === 50012 || res.code === 50014) {
+      if (res.code === 403) {
 
-        MessageBox.confirm('您已经退出登录，您可以取消留在此页面，或重新登录', '确认注销', {
+        MessageBox.confirm(res.msg, '确认', {
           confirmButtonText: '重新登陆',
           cancelButtonText: '取消',
           type: 'warning'
@@ -50,7 +46,7 @@ service.interceptors.response.use(
           })
         })
       }
-      return Promise.reject(new Error(res.message || 'Error'))
+      return Promise.reject(new Error(res.msg || 'Error'))
     } else {
       return res
     }
