@@ -1,5 +1,16 @@
 <template>
   <div class="app-container">
+    <!-- link -->
+    <div class="link_box">
+      <p v-for="(item, index) in linkList" :key="index">
+        {{ item.name }}：
+        <el-button type="primary" @click="changeLink(item.prop, item.param)"
+          >查询</el-button
+        >
+      </p>
+    </div>
+
+    <!-- table -->
     <el-table
       v-loading="listLoading"
       :data="list"
@@ -8,60 +19,14 @@
       highlight-current-row
       style="width: 100%"
     >
-      <el-table-column align="center" label="ID" width="80">
+      <el-table-column
+        align="center"
+        v-for="(item, index) in listLabel"
+        :key="index"
+        :label="item.name"
+      >
         <template slot-scope="scope">
-          <span>{{ scope.row.id }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column width="180px" align="center" label="Date">
-        <template slot-scope="scope">
-          <span>{{
-            scope.row.timestamp | parseTime("{y}-{m}-{d} {h}:{i}")
-          }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column width="120px" align="center" label="Author">
-        <template slot-scope="scope">
-          <span>{{ scope.row.author }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column width="100px" label="Importance">
-        <template slot-scope="scope">
-          <svg-icon
-            v-for="n in +scope.row.importance"
-            :key="n"
-            icon-class="star"
-            class="meta-item__icon"
-          />
-        </template>
-      </el-table-column>
-
-      <el-table-column class-name="status-col" label="Status" width="110">
-        <template slot-scope="{ row }">
-          <el-tag :type="row.status | statusFilter">
-            {{ row.status }}
-          </el-tag>
-        </template>
-      </el-table-column>
-
-      <el-table-column min-width="300px" label="Title">
-        <template slot-scope="{ row }">
-          <router-link :to="'/example/edit/' + row.id" class="link-type">
-            <span>{{ row.title }}</span>
-          </router-link>
-        </template>
-      </el-table-column>
-
-      <el-table-column align="center" label="Actions" width="120">
-        <template slot-scope="scope">
-          <router-link :to="'/example/edit/' + scope.row.id">
-            <el-button type="primary" size="small" icon="el-icon-edit">
-              Edit
-            </el-button>
-          </router-link>
+          <span>{{ scope.row[item.prop] }}</span>
         </template>
       </el-table-column>
     </el-table>
@@ -77,8 +42,8 @@
 </template>
 
 <script>
-import { fetchList } from "@/api/article";
-import Pagination from "@/components/Pagination"; // Secondary package based on el-pagination
+import { getList } from "@/api/table";
+import Pagination from "@/components/Pagination";
 
 export default {
   name: "Table",
@@ -96,12 +61,15 @@ export default {
   data() {
     return {
       list: null,
+      listLabel: null,
       total: 0,
       listLoading: true,
       listQuery: {
         page: 1,
-        limit: 20,
+        limit: 5,
       },
+      linkList: [],
+      apiUrl: this.$route.meta.param + "?",
     };
   },
   created() {
@@ -110,17 +78,33 @@ export default {
   methods: {
     getList() {
       this.listLoading = true;
-      fetchList(this.listQuery).then((response) => {
-        this.list = response.data.items;
-        this.total = response.data.total;
+
+      getList(this.apiUrl, this.listQuery).then((response) => {
+        let { info } = response;
+        // 分页和表格数据
+        this.list = info.data;
+        this.total = Number(info.page.count);
         this.listLoading = false;
+        this.listLabel = info.data_tr;
+        this.listQuery.page = info.page.page;
+        this.listQuery.limit = info.page.page_limit;
+
+        // 链接数据
+        this.linkList = info.link;
       });
+    },
+    // 点击链接，获取数据
+    changeLink(url, params) {
+      this.apiUrl = `${url}?${params}&`;
+      this.listQuery.page = 1;
+      this.listQuery.limit = 5;
+      this.getList();
     },
   },
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .edit-input {
   padding-right: 100px;
 }
@@ -128,5 +112,22 @@ export default {
   position: absolute;
   right: 15px;
   top: 10px;
+}
+.link_box {
+  margin-bottom: 30px;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  flex-flow: wrap;
+  height: 110px;
+  overflow-y: scroll;
+  p {
+    text-align: left;
+    width: 20%;
+  }
+}
+.el-button {
+  padding: 8px 16px !important;
 }
 </style>

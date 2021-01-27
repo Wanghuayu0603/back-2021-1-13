@@ -3,17 +3,17 @@
     <el-button type="primary" @click="handleAddRoles"> 新增权限 </el-button>
 
     <el-table :data="roleList" style="width: 100%; margin-top: 30px" border>
-      <el-table-column align="center" label="Role Key" width="220">
+      <el-table-column align="center" label="角色" width="220">
         <template slot-scope="scope">
           {{ scope.row.role }}
         </template>
       </el-table-column>
-      <el-table-column align="center" label="Role Name" width="220">
+      <el-table-column align="center" label="权限" width="220">
         <template slot-scope="scope">
           {{ scope.row.obj | filterRoles(scope.row.role) }}
         </template>
       </el-table-column>
-      <el-table-column align="center" label="Operations">
+      <el-table-column align="center" label="操作">
         <template slot-scope="scope">
           <el-button
             type="primary"
@@ -22,27 +22,14 @@
           >
             编辑权限
           </el-button>
-          <!-- <el-button type="danger" size="small" @click="handleDelete(scope)">
-            删除
-          </el-button> -->
         </template>
       </el-table-column>
     </el-table>
 
-    <el-dialog title="收货地址" :visible.sync="isDialog">
-      <el-form :model="user" label-width="80px" label-position="left">
-        <el-form-item label="Name">
-          <el-input v-model="user.name" placeholder="Role Name" />
-        </el-form-item>
-        <el-form-item label="Desc">
-          <el-input
-            v-model="user.description"
-            :autosize="{ minRows: 2, maxRows: 4 }"
-            type="textarea"
-            placeholder="角色描述"
-          />
-        </el-form-item>
-      </el-form>
+    <el-dialog title="编辑权限" :visible.sync="isDialog">
+      <p class="user_name">
+        角色: <span>{{ curRole }}</span>
+      </p>
       <el-tree
         :data="tree"
         show-checkbox
@@ -57,26 +44,25 @@
 
       <div slot="footer" class="dialog-footer">
         <el-button @click="isDialog = false">取 消</el-button>
-        <!-- <el-button type="primary" @click="editSure">确 定</el-button> -->
       </div>
     </el-dialog>
 
     <!-- 新增权限 -->
     <el-dialog title="新增权限" :visible.sync="isShow">
       <el-form :model="addPer" label-width="80px" label-position="left">
-        <el-form-item label="Role">
-          <el-input v-model="addRole.sub" placeholder="Role Name" />
+        <el-form-item label="角色">
+          <el-input v-model.trim="addPer.sub" placeholder="请输入角色名" />
         </el-form-item>
-        <el-form-item label="Permission">
+        <el-form-item label="一级权限">
           <el-input
-            v-model="addPer.policies[0].obj"
-            placeholder="Permission Name"
+            v-model.trim="addPer.policies[0].obj"
+            placeholder="请输入一级权限"
           />
         </el-form-item>
-        <el-form-item label="Permission">
+        <el-form-item label="二级权限">
           <el-input
-            v-model="addPer.policies[0].act"
-            placeholder="Permission Name"
+            v-model.trim="addPer.policies[0].act"
+            placeholder="请输入二级权限"
           />
         </el-form-item>
       </el-form>
@@ -91,6 +77,7 @@
 
 <script>
 import { getUsers, addPermission, delPermission } from "@/api/role";
+import { Message } from "element-ui";
 
 export default {
   name: "UserPermission",
@@ -100,7 +87,7 @@ export default {
       oneRoles: [],
       twoRoles: [],
       curRole: "",
-      isShow: true,
+      isShow: false,
       addPer: { sub: "", policies: [{ obj: "", act: "" }] }, //新增权限
       defaultChecked: [], // 默认选中
       CheckedRolesY: {
@@ -110,7 +97,6 @@ export default {
         //取消的权限
       },
       isDialog: false,
-      user: { name: "", description: "" },
       tree: [],
       role: [],
       defaultProps: {
@@ -122,10 +108,7 @@ export default {
   watch: {
     isDialog(val) {
       val ? "" : window.location.reload();
-      this.CheckedRolesY.sub = this.curRole;
-      this.CheckedRolesY.policies = JSON.stringify([
-        { obj: item.label, act: ele.label },
-      ]);
+      // val ? "" : this.getUsers();
     },
   },
   filters: {
@@ -137,9 +120,29 @@ export default {
     this.getUsers();
   },
   methods: {
-    addRolesSure() {},
-    // 提交编辑
-    editSure() {},
+    // 新增角色权限
+    async addRolesSure() {
+      if (
+        this.addPer.sub &&
+        this.addPer.policies[0].obj &&
+        this.addPer.policies[0].act
+      ) {
+        var params = {
+          sub: this.addPer.sub,
+          policies: JSON.stringify(this.addPer.policies),
+        };
+        let res = await addPermission(this.$qs.stringify(params));
+        if (res.code == 200) {
+          Message.success(res.msg);
+        }
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 1400);
+      } else {
+        Message.error("输入信息不完整");
+      }
+    },
     // 设置角色树选中情况
     handleEdit(role) {
       this.isDialog = true;
@@ -238,10 +241,16 @@ export default {
         if (checked) {
           //新增
           this.findChecked(data.id, checked);
-          await addPermission(this.$qs.stringify(this.CheckedRolesY));
+          let res = await addPermission(this.$qs.stringify(this.CheckedRolesY));
+          if (res.code == 200) {
+            Message.success(res.msg);
+          }
         } else {
           this.findChecked(data.id, checked);
-          await delPermission(this.$qs.stringify(this.CheckedRolesN));
+          let res = await delPermission(this.$qs.stringify(this.CheckedRolesN));
+          if (res.code == 200) {
+            Message.success(res.msg);
+          }
         }
       }
     },
@@ -277,6 +286,14 @@ export default {
   }
   .permission-tree {
     margin-bottom: 30px;
+  }
+  .user_name {
+    padding: 0;
+    margin: 0 0 30px;
+    font-size: 20px;
+    span {
+      margin-left: 6px;
+    }
   }
 }
 </style>

@@ -70,8 +70,6 @@ const actions = {
         }
 
         const { roles, menu } = response.info
-        console.log(roles)
-        console.log(menu)
         // roles must be a non-empty array
         if (!roles || roles.length <= 0) {
           reject('getInfo: roles must be a non-null array!')

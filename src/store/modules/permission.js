@@ -23,16 +23,16 @@ function filterAsyncRouter (asyncRouterMap) { //遍历后台传来的路由字�
       if (route.component === 'Layout') {//Layout组件特殊处理
         route.component = Layout
       } else {
-        // if (route.path == 'role') {
-        //   route.component = () => import('@/views/permission/role')
-        // } else if (route.path == 'table') {
-        //   route.component = () => import('@/views/table/index')
-        // } else if (route.path == 'user') {
-        //   route.component = () => import('@/views/permission/user')
-        // } else if (route.path == 'list') {
-        //   route.component = () => import('@/views/permission/list')
-        // }
-        route.component = () => resolve => require([`@/${route.component}`], resolve)
+        if (route.path == 'role') {
+          route.component = () => import('@/views/permission/role')
+        } else if (route.path == 'table') {
+          route.component = () => import('@/views/table/index')
+        } else if (route.path == 'user') {
+          route.component = () => import('@/views/permission/user')
+        } else if (route.path == 'list') {
+          route.component = () => import('@/views/permission/list')
+        }
+        // route.component = () => resolve => require([`@/${route.component}`], resolve)
 
       }
     }

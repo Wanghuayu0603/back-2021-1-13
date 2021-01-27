@@ -1,9 +1,9 @@
 import request from '@/utils/request'
 
-export function getList(params) {
+// 获取表格列表
+export function getList (url, params) {
   return request({
-    url: '/vue-admin-template/table/list',
+    url: `${url}page=${params.page}&page_limit=${params.limit}`,
     method: 'get',
-    params
   })
 }

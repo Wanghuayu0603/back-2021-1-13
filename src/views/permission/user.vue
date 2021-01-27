@@ -1,36 +1,34 @@
 <template>
   <div class="app-container">
-    <el-button type="primary" @click="handleAddRoles"> 新增用户 </el-button>
+    <el-button type="primary" @click="handleAddRoles"> 新增角色 </el-button>
 
     <el-table :data="userList" style="width: 100%; margin-top: 30px" border>
-      <el-table-column align="center" label="Role Key" width="220">
+      <el-table-column align="center" label="用户名" width="220">
         <template slot-scope="scope">
           {{ scope.row.username }}
         </template>
       </el-table-column>
-      <el-table-column align="center" label="Role Name" width="220">
+      <el-table-column align="center" label="角色" width="220">
         <template slot-scope="scope">
           {{ scope.row.roles | filterRoles }}
         </template>
       </el-table-column>
-      <el-table-column align="center" label="Operations">
+      <el-table-column align="center" label="操作">
         <template slot-scope="scope">
           <el-button type="primary" size="small" @click="handleEdit(scope.row)">
             编辑角色
           </el-button>
-          <el-button type="danger" size="small" @click="handleDelete(scope)">
+          <!-- <el-button type="danger" size="small" @click="handleDelete(scope)">
             删除
-          </el-button>
+          </el-button> -->
         </template>
       </el-table-column>
     </el-table>
 
     <el-dialog title="编辑角色" :visible.sync="isDialog">
-      <el-form :model="user" label-width="80px" label-position="left">
-        <el-form-item label="Name">
-          <el-input v-model="user.name" placeholder="Role Name" />
-        </el-form-item>
-      </el-form>
+      <p class="user_name">
+        用户名: <span>{{ curUser }}</span>
+      </p>
       <el-checkbox-group v-model="checkedRoles">
         <el-checkbox
           :label="item"
@@ -44,14 +42,17 @@
       </div>
     </el-dialog>
 
-    <!-- 新增角色 -->
+    <!-- 新增用户 -->
     <el-dialog title="新增角色" :visible.sync="isShow">
       <el-form :model="addRole" label-width="80px" label-position="left">
-        <el-form-item label="Name">
-          <el-input v-model="addRole.name" placeholder="Role Name" />
+        <el-form-item label="用户名">
+          <el-input v-model.trim="addRole.user" placeholder="请输入用户名" />
         </el-form-item>
-        <el-form-item label="Role">
-          <el-input v-model="addRole.group" placeholder="Role Name" />
+        <el-form-item label="角色名">
+          <el-input
+            v-model.trim="addRole.group[0]"
+            placeholder="请输入角色名"
+          />
         </el-form-item>
       </el-form>
 
@@ -65,7 +66,7 @@
 
 <script>
 import { getUsers, addRole, deleteRole } from "@/api/role";
-
+import { Message } from "element-ui";
 export default {
   name: "RolePermission",
   data() {
@@ -75,8 +76,8 @@ export default {
       checkedRoles: [], // 选中的角色
       isDialog: false,
       isShow: false,
-      user: { name: "" },
-      addRole: { name: "", group: "" }, //新增角色
+      curUser: "",
+      addRole: { user: "", group: [] }, //新增角色
     };
   },
   computed: {
@@ -98,20 +99,37 @@ export default {
     async checkedChange(flag, curRole) {
       if (flag) {
         // 选中状态
-        await addRole(
+        let res = await addRole(
           this.$qs.stringify({ user: this.curUser, group: [curRole] })
         );
+        if (res.code == 200) {
+          Message.success(res.msg);
+        }
       } else {
-        await deleteRole(
+        let res = await deleteRole(
           this.$qs.stringify({ user: this.curUser, group: [curRole] })
         );
+        if (res.code == 200) {
+          Message.success(res.msg);
+        }
       }
       this.getUsers();
     },
 
-    //确认编辑用户角色
+    //确认新增用户角色
     async addRolesSure() {
-      // 刷新
+      if (this.addRole.user && this.addRole.group.length) {
+        let res = await addRole(this.$qs.stringify(this.addRole));
+        if (res.code == 200) {
+          Message.success(res.msg);
+        }
+      } else {
+        Message.error("请输入用户名或角色名");
+      }
+      this.isShow = false;
+      this.addRole.user = "";
+      this.addRole.group = [];
+      this.getUsers();
     },
     // 设置角色树选中情况
     handleEdit(curItem) {
@@ -119,6 +137,7 @@ export default {
       this.checkedRoles = curItem.roles; // 选中的角色
       // 保存当前编辑的对象
       this.curUser = curItem.username;
+      this.user = curItem.username;
     },
     handleAddRoles() {
       //新增用户
@@ -140,6 +159,14 @@ export default {
   }
   .permission-tree {
     margin-bottom: 30px;
+  }
+  .user_name {
+    padding: 0;
+    margin: 0 0 30px;
+    font-size: 20px;
+    span {
+      margin-left: 6px;
+    }
   }
 }
 </style>
