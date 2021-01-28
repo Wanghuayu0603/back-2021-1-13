@@ -1,5 +1,60 @@
 <template>
   <div class="app-container">
+    <!-- form -->
+    <el-form ref="form" :model="form" label-width="80px">
+      <div :key="ind" v-for="(item, ind) in formList">
+        <el-form-item
+          v-if="item.prop == 'input'"
+          style="width: 30%; display: flex"
+          :label="item.name"
+        >
+          <el-input
+            :disabled="item.disable"
+            v-model="form[item.key]"
+            placeholder=""
+          ></el-input>
+        </el-form-item>
+
+        <el-form-item
+          v-if="item.prop == 'date'"
+          :label="item.name"
+          style="width: 40%; display: flex"
+        >
+          <el-date-picker
+            type="date"
+            placeholder="选择日期"
+            v-model="form[item.key]"
+            :disable="item.disable"
+            format="yyyy 年 MM 月 dd 日"
+            value-format="timestamp"
+            style="width: 100%"
+          ></el-date-picker>
+        </el-form-item>
+
+        <el-form-item
+          v-if="item.prop == 'date_time'"
+          :label="item.name"
+          style="width: 40%; display: flex"
+        >
+          <el-time-picker
+            placeholder="选择时间"
+            v-model="form[item.key]"
+            :disable="item.disable"
+            style="width: 100%"
+            format="HH 时 mm 分钟 ss 秒"
+            value-format="timestamp"
+          ></el-time-picker>
+        </el-form-item>
+      </div>
+
+      <el-button
+        style="width: 28%; height: 40px; margin-top: 10px"
+        type="primary"
+        @click="submitForm"
+        >查询</el-button
+      >
+    </el-form>
+
     <!-- link -->
     <div class="link_box">
       <p v-for="(item, index) in linkList" :key="index">
@@ -48,16 +103,7 @@ import Pagination from "@/components/Pagination";
 export default {
   name: "Table",
   components: { Pagination },
-  filters: {
-    statusFilter(status) {
-      const statusMap = {
-        published: "success",
-        draft: "info",
-        deleted: "danger",
-      };
-      return statusMap[status];
-    },
-  },
+  filters: {},
   data() {
     return {
       list: null,
@@ -68,7 +114,9 @@ export default {
         page: 1,
         limit: 5,
       },
+      form: {},
       linkList: [],
+      formList: [], //form列表
       apiUrl: this.$route.meta.param + "?",
     };
   },
@@ -76,10 +124,37 @@ export default {
     this.getList();
   },
   methods: {
+    // 去除空键值对
+    filterForm() {
+      for (var key in this.form) {
+        if (this.form[key] === "" || this.form[key] == null) {
+          delete this.form[key];
+        }
+      }
+    },
+    // 表单
+    submitForm() {
+      // 重置当前页数
+      this.listQuery.page = 1;
+
+      // 去除空键值对
+      this.filterForm();
+      this.getList();
+    },
+
     getList() {
       this.listLoading = true;
 
-      getList(this.apiUrl, this.listQuery).then((response) => {
+      var formParams = "";
+      if (JSON.stringify(this.form) == "{}") {
+        formParams = "";
+      } else {
+        // 去除空键值对
+        this.filterForm();
+        formParams = this.$qs.stringify(this.form);
+      }
+
+      getList(this.apiUrl, this.listQuery, formParams).then((response) => {
         let { info } = response;
         // 分页和表格数据
         this.list = info.data;
@@ -91,20 +166,31 @@ export default {
 
         // 链接数据
         this.linkList = info.link;
+
+        // 表单数据
+        var obj = {};
+        info.form.forEach((item) => {
+          if (item.prop == "date" || item.prop == "date_time") {
+            item.param ? (obj[item.key] = item.param + "000") : "";
+          } else {
+            obj[item.key] = item.param;
+          }
+        });
+        this.form = JSON.parse(JSON.stringify(obj));
+        this.formList = info.form;
       });
     },
     // 点击链接，获取数据
     changeLink(url, params) {
       this.apiUrl = `${url}?${params}&`;
       this.listQuery.page = 1;
-      this.listQuery.limit = 5;
       this.getList();
     },
   },
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss" >
 .edit-input {
   padding-right: 100px;
 }
@@ -129,5 +215,9 @@ export default {
 }
 .el-button {
   padding: 8px 16px !important;
+}
+.el-form-item .el-form-item__label {
+  text-align: left !important;
+  width: 120px !important;
 }
 </style>

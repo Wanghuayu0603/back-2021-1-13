@@ -110,6 +110,13 @@ export default {
       val ? "" : window.location.reload();
       // val ? "" : this.getUsers();
     },
+    isShow(val) {
+      if (!val) {
+        this.addPer.sub = "";
+        this.addPer.policies[0].obj = "";
+        this.addPer.policies[0].act = "";
+      }
+    },
   },
   filters: {
     filterRoles(val, curRole) {
