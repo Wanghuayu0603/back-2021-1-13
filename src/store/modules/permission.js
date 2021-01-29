@@ -25,7 +25,7 @@ function filterAsyncRouter (asyncRouterMap) { //遍历后台传来的路由字�
       } else {
         if (route.path == 'role') {
           route.component = () => import('@/views/permission/role')
-        } else if (route.path == 'table') {
+        } else if (route.path.indexOf('table') != -1) {
           route.component = () => import('@/views/table/index')
         } else if (route.path == 'user') {
           route.component = () => import('@/views/permission/user')

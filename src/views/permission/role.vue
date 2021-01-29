@@ -108,7 +108,6 @@ export default {
   watch: {
     isDialog(val) {
       val ? "" : window.location.reload();
-      // val ? "" : this.getUsers();
     },
     isShow(val) {
       if (!val) {
@@ -247,14 +246,14 @@ export default {
         //保证操作的是二级
         if (checked) {
           //新增
-          this.findChecked(data.id, checked);
+          this.findChecked(data.id);
           let res = await addPermission(this.$qs.stringify(this.CheckedRolesY));
           if (res.code == 200) {
             Message.success(res.msg);
           }
         } else {
-          this.findChecked(data.id, checked);
-          let res = await delPermission(this.$qs.stringify(this.CheckedRolesN));
+          this.findChecked(data.id);
+          let res = await delPermission(this.$qs.stringify(this.CheckedRolesY));
           if (res.code == 200) {
             Message.success(res.msg);
           }
@@ -262,22 +261,16 @@ export default {
       }
     },
     // 查找准中的
-    findChecked(id, flag) {
+    findChecked(id) {
       this.tree.forEach((item) => {
         item.children.forEach((ele) => {
           if (ele.id == id) {
             // 保存当前一级label和当前级的label
-            if (flag) {
-              this.CheckedRolesY.sub = this.curRole;
-              this.CheckedRolesY.policies = JSON.stringify([
-                { obj: item.label, act: ele.label },
-              ]);
-            } else {
-              this.CheckedRolesN.sub = this.curRole;
-              this.CheckedRolesN.policies = JSON.stringify([
-                { obj: item.label, act: ele.label },
-              ]);
-            }
+
+            this.CheckedRolesY.sub = this.curRole;
+            this.CheckedRolesY.policies = JSON.stringify([
+              { obj: item.label, act: ele.label },
+            ]);
           }
         });
       });

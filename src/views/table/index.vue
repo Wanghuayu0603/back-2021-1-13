@@ -1,5 +1,10 @@
 <template>
   <div class="app-container">
+    <!-- Excel -->
+    <el-button class="excel_btn" style="" type="primary" @click="exportExcel"
+      >导出Excel</el-button
+    >
+
     <!-- form -->
     <el-form ref="form" :model="form" label-width="80px">
       <div :key="ind" v-for="(item, ind) in formList">
@@ -97,11 +102,11 @@
 </template>
 
 <script>
-import { getList } from "@/api/table";
+import { getList, exportExcel } from "@/api/table";
 import Pagination from "@/components/Pagination";
 
 export default {
-  name: "Table",
+  // name: "Table",
   components: { Pagination },
   filters: {},
   data() {
@@ -112,7 +117,7 @@ export default {
       listLoading: true,
       listQuery: {
         page: 1,
-        limit: 5,
+        limit: 20,
       },
       form: {},
       linkList: [],
@@ -124,6 +129,24 @@ export default {
     this.getList();
   },
   methods: {
+    async exportExcel() {
+      var url = `${this.$route.meta.param}?download=1`;
+
+      exportExcel(url).then((res) => {
+        var blob = new Blob([res], {
+          type:
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8",
+        });
+        var downloadElement = document.createElement("a");
+        var href = window.URL.createObjectURL(blob); // 创建下载的链接
+        downloadElement.href = href;
+        downloadElement.download = "export.csv"; // 下载后文件名
+        document.body.appendChild(downloadElement);
+        downloadElement.click(); // 点击下载
+        document.body.removeChild(downloadElement); // 下载完成移除元素
+        window.URL.revokeObjectURL(href); // 释放掉blob对象
+      });
+    },
     // 去除空键值对
     filterForm() {
       for (var key in this.form) {
@@ -219,5 +242,13 @@ export default {
 .el-form-item .el-form-item__label {
   text-align: left !important;
   width: 120px !important;
+}
+.excel_btn {
+  width: 6%;
+  height: 40px;
+  margin-top: 10px;
+  position: fixed;
+  top: 70px;
+  right: 50px;
 }
 </style>

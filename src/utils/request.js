@@ -4,8 +4,7 @@ import store from '@/store'
 import { getToken } from '@/utils/auth'
 
 const service = axios.create({
-  // baseURL: process.env.VUE_APP_BASE_API,
-  baseURL: 'http://www.rbac.com/',
+  baseURL: 'http://stat_api.sscykp.com/rbac/',
   timeout: 5000 // request timeout
 })
 
@@ -28,7 +27,7 @@ service.interceptors.response.use(
   response => {
     const res = response.data
 
-    if (res.code !== 200) {
+    if (res.code && res.code !== 200) {
       Message({
         message: res.msg || 'Error',
         type: 'error',
@@ -46,6 +45,9 @@ service.interceptors.response.use(
             location.reload()
           })
         })
+      } else {
+        return res
+
       }
       return Promise.reject(new Error(res.msg || 'Error'))
     } else {

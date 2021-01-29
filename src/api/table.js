@@ -7,3 +7,11 @@ export function getList (url, params, formParams) {
     method: 'get',
   })
 }
+
+// 导出Excel
+export function exportExcel (url) {
+  return request({
+    url: url,
+    method: 'get',
+  })
+}

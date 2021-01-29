@@ -81,8 +81,8 @@ export default {
     };
     return {
       loginForm: {
-        username: "zhenghua",
-        password: "123456",
+        username: "",
+        password: "",
       },
       loginRules: {
         username: [
@@ -121,32 +121,11 @@ export default {
         if (valid) {
           this.loading = true;
 
-          // this.$store
-          //   .dispatch("user/login", this.loginForm)
-          //   .then((res) => {
-          //     console.log(res);
-          //     // Message({
-          //     //   message: res.message || "Error",
-          //     //   type: "error",
-          //     //   duration: 5 * 1000,
-          //     // });
-          //     this.$router.push({ path: this.redirect || "/" });
-          //     this.loading = false;
-          //   })
-          //   .catch(() => {
-          //     this.loading = false;
-          //   });
-
           this.$store
             .dispatch("user/login", this.$qs.stringify(this.loginForm))
             .then((res) => {
-              console.log(res);
+              this.loading = false;
               if (res.code != 200) {
-                Message({
-                  message: res.msg || "Error",
-                  type: "error",
-                  duration: 5 * 1000,
-                });
                 return;
               }
 
